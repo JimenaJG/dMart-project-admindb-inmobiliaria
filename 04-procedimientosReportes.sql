@@ -1,5 +1,6 @@
-
+------------------------------------------------------------
 -- Contratos por tipo 
+
 CREATE OR ALTER PROCEDURE sp_dm_contratos_por_tipo
 AS
 BEGIN
@@ -12,8 +13,9 @@ BEGIN
 END;
 GO
 
-
+------------------------------------------------------------
 --  Contratos firmados por mes 
+
 CREATE OR ALTER PROCEDURE sp_dm_contratos_por_mes
 AS
 BEGIN
@@ -28,8 +30,9 @@ BEGIN
 END;
 GO
 
-
+------------------------------------------------------------
 --  Duración promedio por tipo de contrato
+
 CREATE OR ALTER PROCEDURE sp_dm_duracion_promedio_por_tipo
 AS
 BEGIN
@@ -42,8 +45,9 @@ BEGIN
 END;
 GO
 
-
+------------------------------------------------------------
 --  Contratos por rol de cliente 
+
 CREATE OR ALTER PROCEDURE sp_dm_contratos_por_rol
 AS
 BEGIN
@@ -56,8 +60,9 @@ BEGIN
 END;
 GO
 
-
+------------------------------------------------------------
 --- Top 10 propiedades más contratadas 
+
 CREATE OR ALTER PROCEDURE sp_dm_top_propiedades
 AS
 BEGIN
@@ -71,8 +76,9 @@ BEGIN
 END;
 GO
 
-
+------------------------------------------------------------
 --  Contratos por agente 
+
 CREATE OR ALTER PROCEDURE sp_dm_contratos_por_agente
 AS
 BEGIN
@@ -88,8 +94,9 @@ BEGIN
 END;
 GO
 
-
+------------------------------------------------------------
 -- Historial de clientes y contratos
+
 CREATE OR ALTER PROCEDURE sp_dm_historial_contratos_cliente
 AS
 BEGIN
@@ -101,13 +108,11 @@ BEGIN
         tc.Nombre AS TipoContrato,
         p.Ubicacion AS Propiedad,
         p.Precio AS PrecioPropiedad,
-        p.Estado AS EstadoPropiedad,  
-        p.TipoInmueble,              
         a.NombreCompleto AS AgenteEncargado,
         f.MontoTotal,
         f.Deposito,
         f.DuracionMeses,
-        f.Estado AS EstadoContrato   
+        f.Estado
     FROM Fact_ClienteContrato fcc
     INNER JOIN Dim_Cliente cl ON fcc.IdCliente = cl.IdCliente
     INNER JOIN Dim_Rol rol ON fcc.IdRol = rol.IdRol
@@ -115,12 +120,13 @@ BEGIN
     INNER JOIN Dim_Propiedad p ON f.IdPropiedad = p.IdPropiedad
     INNER JOIN Dim_TipoContrato tc ON f.IdTipoContrato = tc.IdTipoContrato
     INNER JOIN Dim_Agente a ON f.IdAgente = a.IdAgente
-    WHERE tc.Nombre IN ('Alquiler', 'Venta')  
     ORDER BY cl.IdCliente, fcc.IdContrato;
 END;
 GO
 
+------------------------------------------------------------
 --  Estado actual de propiedades
+
 CREATE OR ALTER PROCEDURE sp_dm_estado_propiedades
 AS
 BEGIN
@@ -135,7 +141,9 @@ BEGIN
 END;
 GO
 
+------------------------------------------------------------
 -- Pagos y comisiones por agente
+
 CREATE OR ALTER PROCEDURE sp_dm_pagos_comisiones
 AS
 BEGIN
@@ -151,8 +159,9 @@ BEGIN
 END;
 GO
 
-
+------------------------------------------------------------
 --Facturación y pagos por cliente
+
 CREATE OR ALTER PROCEDURE sp_dm_facturacion_por_cliente
 AS
 BEGIN
@@ -209,6 +218,9 @@ EXEC sp_dm_facturacion_por_cliente;
 
 
 SELECT * FROM vw_dm_contratos_completos;
+
+
+SELECT * FROM vw_historial_clientes;
 
 
 SELECT * FROM vw_estadisticas_agentes;

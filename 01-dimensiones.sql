@@ -40,7 +40,7 @@ CREATE TABLE Dim_TipoContrato (
 -- DIM_TIEMPO
 CREATE TABLE Dim_Tiempo (
   IdTiempo INT IDENTITY(1,1) PRIMARY KEY,
-  Fecha DATE NOT NULL UNIQUE,
+  Fecha DATE NULL,
   Dia INT,
   Mes INT,
   NombreMes VARCHAR(15),
