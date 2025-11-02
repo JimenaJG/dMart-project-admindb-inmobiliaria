@@ -95,11 +95,10 @@ BEGIN
         ON T.id_original = S.identificacion
         WHEN MATCHED THEN 
             UPDATE SET T.NombreCompleto = LTRIM(RTRIM(S.nombre + ' ' + S.apellido1 + ISNULL(' ' + S.apellido2, ''))),
-                        T.Telefono = S.telefono,
-                        T.Estado = S.estado
+                        T.Telefono = S.telefono
         WHEN NOT MATCHED THEN
-            INSERT (id_original, NombreCompleto, Telefono, Estado)
-            VALUES (S.identificacion, LTRIM(RTRIM(S.nombre + ' ' + S.apellido1 + ISNULL(' ' + S.apellido2, ''))), S.telefono, S.estado);
+            INSERT (id_original, NombreCompleto, Telefono)
+            VALUES (S.identificacion, LTRIM(RTRIM(S.nombre + ' ' + S.apellido1 + ISNULL(' ' + S.apellido2, ''))), S.telefono);
         PRINT'Dim_Agente cargada.';
 
         -- Cliente
@@ -107,11 +106,18 @@ BEGIN
         USING (SELECT * FROM AltosDelValle.dbo.Cliente) AS S
         ON T.id_original = S.identificacion
         WHEN MATCHED THEN 
-            UPDATE SET T.NombreCompleto = LTRIM(RTRIM(S.nombre + ' ' + S.apellido1 + ISNULL(' ' + S.apellido2, ''))),
-                    T.Telefono = S.telefono
+            UPDATE SET 
+                T.NombreCompleto = LTRIM(RTRIM(S.nombre + ' ' + S.apellido1 + ISNULL(' ' + S.apellido2, ''))),
+                T.Telefono = S.telefono,
+                T.Estado = S.estado
         WHEN NOT MATCHED THEN
-            INSERT (id_original, NombreCompleto, Telefono)
-            VALUES (S.identificacion, LTRIM(RTRIM(S.nombre + ' ' + S.apellido1 + ISNULL(' ' + S.apellido2, ''))), S.telefono);
+            INSERT (id_original, NombreCompleto, Telefono, Estado)
+            VALUES (
+                S.identificacion,
+                LTRIM(RTRIM(S.nombre + ' ' + S.apellido1 + ISNULL(' ' + S.apellido2, ''))),
+                S.telefono,
+                S.estado
+            );
         PRINT'Dim_Cliente cargada.';
 
         -- Rol

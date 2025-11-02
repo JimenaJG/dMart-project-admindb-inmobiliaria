@@ -22,7 +22,8 @@ CREATE TABLE dbo.Dim_Cliente (
   IdClienteDW INT IDENTITY(1,1) PRIMARY KEY,
   id_original INT UNIQUE NOT NULL,
   NombreCompleto VARCHAR(150) NOT NULL,
-  Telefono VARCHAR(30)
+  Telefono VARCHAR(30),
+  Estado BIT NULL
 );
 GO
 
@@ -33,10 +34,9 @@ IF OBJECT_ID('dbo.Dim_Rol','U') IS NULL
 CREATE TABLE dbo.Dim_Rol (
   IdRolDW INT IDENTITY(1,1) PRIMARY KEY,
   id_original INT UNIQUE NOT NULL,
-  NombreRol VARCHAR(50)
+  NombreRol VARCHAR(50),
 );
-GO
-
+GO 
 
 -- DIMENSIÓN TIPO DE INMUEBLE
 -- =====================================================

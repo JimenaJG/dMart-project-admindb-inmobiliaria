@@ -148,11 +148,17 @@ GO
 CREATE OR ALTER VIEW dbo.vw_resumen_general_dashboard AS
 SELECT 
   (SELECT COUNT(*) FROM dbo.Fact_Contrato) AS TotalContratos,
-  (SELECT COUNT(*) FROM dbo.Dim_Propiedad) AS TotalPropiedades,
   (SELECT COUNT(*) FROM dbo.Dim_Agente) AS TotalAgentes,
-  (SELECT COUNT(*) FROM dbo.Dim_Cliente) AS TotalClientes,
   (SELECT SUM(MontoTotalContrato) FROM dbo.Fact_Contrato) AS MontoTotalContratos,
-  (SELECT SUM(MontoComision) FROM dbo.Fact_Contrato) AS TotalComisiones;
+  (SELECT SUM(MontoComision) FROM dbo.Fact_Contrato) AS TotalComisiones,
+  (SELECT COUNT(DISTINCT p.IdPropiedadDW)
+   FROM dbo.Fact_Contrato f
+   INNER JOIN dbo.Dim_Propiedad p ON f.IdPropiedadDW = p.IdPropiedadDW
+   INNER JOIN dbo.Dim_EstadoPropiedad ep ON f.IdEstadoPropiedadDW = ep.IdEstadoPropiedadDW
+   WHERE UPPER(ep.NombreEstado) = 'DISPONIBLE') AS PropiedadesDisponibles,
+  (SELECT COUNT(*) 
+   FROM dbo.Dim_Cliente c 
+   WHERE c.Estado = 1) AS ClientesActivos;
 GO
 
 --  COMISIONES POR MES
