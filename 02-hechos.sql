@@ -1,46 +1,62 @@
--- HECHOS
-
---  FACT_CONTRATO 
-USE DataMartAltosdelValle;
+USE DataMartAltosDelValle;
 GO
 
-IF OBJECT_ID('dbo.Fact_Contrato', 'U') IS NOT NULL
+IF OBJECT_ID('dbo.Fact_Contrato','U') IS NOT NULL
     DROP TABLE dbo.Fact_Contrato;
 GO
 
-CREATE TABLE Fact_Contrato (
-  IdContratoDW INT IDENTITY(1,1) PRIMARY KEY,
-  IdContrato INT NOT NULL UNIQUE,
-  MontoTotal MONEY,
-  Deposito MONEY,
-  DuracionMeses INT,
-  Estado VARCHAR(30),
-  PorcentajeComision DECIMAL(5,2),
-  IdAgente INT,
-  IdPropiedad INT,
-  IdTipoContrato INT,
-  IdTiempoFirma INT,
-  IdTiempoInicio INT,
-  IdTiempoFin INT,
-  IdTiempoPago INT,
-  FOREIGN KEY (IdAgente) REFERENCES Dim_Agente(IdAgente),
-  FOREIGN KEY (IdPropiedad) REFERENCES Dim_Propiedad(IdPropiedad),
-  FOREIGN KEY (IdTipoContrato) REFERENCES Dim_TipoContrato(IdTipoContrato),
-  FOREIGN KEY (IdTiempoFirma) REFERENCES Dim_Tiempo(IdTiempo),
-  FOREIGN KEY (IdTiempoInicio) REFERENCES Dim_Tiempo(IdTiempo),
-  FOREIGN KEY (IdTiempoFin) REFERENCES Dim_Tiempo(IdTiempo),
-  FOREIGN KEY (IdTiempoPago) REFERENCES Dim_Tiempo(IdTiempo)
+CREATE TABLE dbo.Fact_Contrato (
+    IdContratoDW INT IDENTITY(1,1) PRIMARY KEY,
+    id_original INT NOT NULL,
+    IdAgenteDW INT NOT NULL,
+    IdClienteDW INT NULL,
+    IdRolDW INT NULL,
+    IdPropiedadDW INT NOT NULL,
+    IdTipoInmuebleDW INT NOT NULL,
+    IdEstadoPropiedadDW INT NOT NULL,
+    IdTipoContratoDW INT NOT NULL,
+    IdEstadoContratoDW INT NOT NULL,
+    IdTiempoFirma INT NULL,
+    IdTiempoInicio INT NOT NULL,
+    IdTiempoFin INT NOT NULL,
+    IdTiempoPago INT NULL,
+    MontoTotalContrato MONEY,
+    DepositoPorAlquiler MONEY,
+    PorcentajeComision FLOAT,
+    MontoComision MONEY,
+    ContratoFinalizado BIT DEFAULT(0),
+    DuracionDias INT,
+    DuracionMeses INT,
+    DuracionCuatrimestres INT,
+    DuracionAnios INT,
+
+
+    FOREIGN KEY (IdAgenteDW) REFERENCES dbo.Dim_Agente(IdAgenteDW),
+    FOREIGN KEY (IdClienteDW) REFERENCES dbo.Dim_Cliente(IdClienteDW),
+    FOREIGN KEY (IdRolDW) REFERENCES dbo.Dim_Rol(IdRolDW),
+    FOREIGN KEY (IdPropiedadDW) REFERENCES dbo.Dim_Propiedad(IdPropiedadDW),
+    FOREIGN KEY (IdTipoInmuebleDW) REFERENCES dbo.Dim_TipoInmueble(IdTipoInmuebleDW),
+    FOREIGN KEY (IdEstadoPropiedadDW) REFERENCES dbo.Dim_EstadoPropiedad(IdEstadoPropiedadDW),
+    FOREIGN KEY (IdTipoContratoDW) REFERENCES dbo.Dim_TipoContrato(IdTipoContratoDW),
+    FOREIGN KEY (IdEstadoContratoDW) REFERENCES dbo.Dim_EstadoContrato(IdEstadoContratoDW),
+    FOREIGN KEY (IdTiempoFirma) REFERENCES dbo.Dim_Tiempo(IdTiempo),
+    FOREIGN KEY (IdTiempoInicio) REFERENCES dbo.Dim_Tiempo(IdTiempo),
+    FOREIGN KEY (IdTiempoFin) REFERENCES dbo.Dim_Tiempo(IdTiempo),
+    FOREIGN KEY (IdTiempoPago) REFERENCES dbo.Dim_Tiempo(IdTiempo)
 );
 GO
 
+USE DataMartAltosDelValle;
+GO
 
---- FACT_CLIENTECONTRATO
-CREATE TABLE Fact_ClienteContrato (
-  IdClienteContratoDW INT IDENTITY(1,1) PRIMARY KEY,
-  IdContrato INT NOT NULL,
-  IdCliente INT NOT NULL,
-  IdRol INT NOT NULL,
-  FOREIGN KEY (IdContrato) REFERENCES Fact_Contrato(IdContrato),
-  FOREIGN KEY (IdCliente) REFERENCES Dim_Cliente(IdCliente),
-  FOREIGN KEY (IdRol) REFERENCES Dim_Rol(IdRol)
-);
+
+-- ÍNDICES DE OPTIMIZACIÓN 
+-- =====================================================
+CREATE INDEX IX_Fact_Contrato_id_original ON dbo.Fact_Contrato(id_original);
+CREATE INDEX IX_Fact_Contrato_Agente ON dbo.Fact_Contrato(IdAgenteDW);
+CREATE INDEX IX_Fact_Contrato_TiempoInicio ON dbo.Fact_Contrato(IdTiempoInicio);
+CREATE INDEX IX_Fact_Contrato_TiempoFin ON dbo.Fact_Contrato(IdTiempoFin);
+CREATE INDEX IX_Fact_Contrato_EstadoTipo ON dbo.Fact_Contrato(IdEstadoContratoDW, IdTipoContratoDW);
+CREATE INDEX IX_Fact_Contrato_PropiedadCliente ON dbo.Fact_Contrato(IdPropiedadDW, IdClienteDW);
+GO
+
