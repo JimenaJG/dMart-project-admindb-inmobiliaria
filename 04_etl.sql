@@ -220,8 +220,8 @@ BEGIN
         SELECT DISTINCT
             c.idContrato AS id_original,
             a.IdAgenteDW,
-            cli.IdClienteDW,
-            r.IdRolDW,
+            clienteRol.IdClienteDW,
+            clienteRol.IdRolDW,
             p.IdPropiedadDW,
             ti.IdTipoInmuebleDW,
             ep.IdEstadoPropiedadDW,
@@ -258,9 +258,15 @@ BEGIN
         JOIN dbo.Dim_EstadoPropiedad ep ON ep.id_original = pr.idEstado
         JOIN dbo.Dim_TipoContrato tc ON tc.id_original = c.idTipoContrato
         JOIN dbo.Dim_EstadoContrato ec ON ec.NombreEstado = c.estado
-        LEFT JOIN AltosDelValle.dbo.ClienteContrato cc ON cc.idContrato = c.idContrato
-        LEFT JOIN dbo.Dim_Cliente cli ON cli.id_original = cc.identificacion
-        LEFT JOIN dbo.Dim_Rol r ON r.id_original = cc.idRol
+        OUTER APPLY (
+            SELECT TOP 1 
+                cli.IdClienteDW,
+                r.IdRolDW
+            FROM AltosDelValle.dbo.ClienteContrato cc
+            LEFT JOIN dbo.Dim_Cliente cli ON cli.id_original = cc.identificacion
+            LEFT JOIN dbo.Dim_Rol r ON r.id_original = cc.idRol
+            WHERE cc.idContrato = c.idContrato
+        ) AS clienteRol
         LEFT JOIN dbo.Dim_Tiempo tf ON tf.Fecha = c.fechaFirma
         LEFT JOIN dbo.Dim_Tiempo tiempoI ON tiempoI.Fecha = c.fechaInicio
         LEFT JOIN dbo.Dim_Tiempo tiempoF ON tiempoF.Fecha = c.fechaFin
@@ -313,8 +319,26 @@ BEGIN
 
         PRINT'Fact_Contrato actualizada e insertada sin duplicados.';
 
+        ----------------------------------------------------------
+        -- 6. Cargar Fact_Propiedad (al final del proceso)
+        ----------------------------------------------------------
+        PRINT'Cargando hechos (Fact_Propiedad)...';
+
+        DELETE FROM dbo.Fact_Propiedad;
+
+        INSERT INTO dbo.Fact_Propiedad (IdPropiedadDW, IdEstadoPropiedadDW)
+        SELECT
+            dp.IdPropiedadDW,
+            ep.IdEstadoPropiedadDW
+        FROM AltosDelValle.dbo.Propiedad p
+        JOIN dbo.Dim_Propiedad dp ON dp.id_original = p.idPropiedad
+        JOIN dbo.Dim_EstadoPropiedad ep ON ep.id_original = p.idEstado;
+
+        PRINT'Fact_Propiedad cargada correctamente.';
+
+
         ------------------------------------------------------------------
-        -- 6. Fin del proceso
+        -- 7. Fin del proceso
         ------------------------------------------------------------------
         COMMIT TRAN;
         PRINT'Proceso ETL ejecutado correctamente.';
