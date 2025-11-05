@@ -63,7 +63,8 @@ SELECT
   SUM(f.MontoTotalContrato) AS MontoTotal
 FROM dbo.Fact_Contrato f
 JOIN dbo.Dim_Tiempo t ON t.IdTiempo = f.IdTiempoInicio
-GROUP BY t.Anio, t.NombreMes;
+WHERE f.IdTiempoInicio <> 0
+GROUP BY t.Anio, t.Mes, t.NombreMes;
 GO
 
 -- DURACIÓN PROMEDIO POR TIPO DE CONTRATO
