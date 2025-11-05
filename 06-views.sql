@@ -135,12 +135,13 @@ GROUP BY cl.NombreCompleto, r.NombreRol;
 GO
 
 -- ESTADO DE LAS PROPIEDADES
-CREATE OR ALTER VIEW dbo.vw_estado_propiedades AS
+CREATE OR ALTER VIEW vw_estado_propiedades AS
 SELECT 
   ep.NombreEstado AS EstadoPropiedad,
-  COUNT(DISTINCT f.IdPropiedadDW) AS TotalPropiedades
-FROM dbo.Fact_Contrato f
-JOIN dbo.Dim_EstadoPropiedad ep ON f.IdEstadoPropiedadDW = ep.IdEstadoPropiedadDW
+  COUNT(DISTINCT fp.IdPropiedadDW) AS TotalPropiedades
+FROM dbo.Dim_EstadoPropiedad ep
+LEFT JOIN dbo.Fact_Propiedad fp 
+  ON fp.IdEstadoPropiedadDW = ep.IdEstadoPropiedadDW
 GROUP BY ep.NombreEstado;
 GO
 
@@ -209,4 +210,4 @@ SELECT * FROM vw_resumen_general_dashboard;
 SELECT * FROM vw_comisiones_por_mes;
 SELECT * FROM vw_contratos_activos_vs_finalizados;
 SELECT * FROM vw_distribucion_por_tipo_inmueble;
-GO
+

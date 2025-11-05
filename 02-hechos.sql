@@ -1,6 +1,9 @@
 USE DataMartAltosDelValle;
 GO
 
+
+--  HECHO CONTRATO
+-- =====================================================
 IF OBJECT_ID('dbo.Fact_Contrato','U') IS NOT NULL
     DROP TABLE dbo.Fact_Contrato;
 GO
@@ -46,9 +49,24 @@ CREATE TABLE dbo.Fact_Contrato (
 );
 GO
 
-USE DataMartAltosDelValle;
+--  HECHO PROPIEDAD
+-- =====================================================
+IF OBJECT_ID('dbo.Fact_Propiedad', 'U') IS NOT NULL
+    DROP TABLE dbo.Fact_Propiedad;
 GO
 
+  CREATE TABLE dbo.Fact_Propiedad (
+    IdPropiedadDW INT PRIMARY KEY,
+    IdEstadoPropiedadDW INT NOT NULL,
+    FOREIGN KEY (IdPropiedadDW) REFERENCES dbo.Dim_Propiedad(IdPropiedadDW),
+    FOREIGN KEY (IdEstadoPropiedadDW) REFERENCES dbo.Dim_EstadoPropiedad(IdEstadoPropiedadDW)
+  );
+GO
+
+
+
+USE DataMartAltosDelValle;
+GO
 
 -- ÍNDICES DE OPTIMIZACIÓN 
 -- =====================================================
