@@ -98,8 +98,7 @@ GO
 IF OBJECT_ID('dbo.Dim_Factura','U') IS NULL
 CREATE TABLE dbo.Dim_Factura (
   IdFacturaDW INT IDENTITY(1,1) PRIMARY KEY,
-  id_original INT UNIQUE NOT NULL,
-  NumeroFactura VARCHAR(50),
+  id_original INT NOT NULL,
   FechaEmision DATE,
   FechaPago DATE,
   Monto MONEY,
@@ -146,6 +145,47 @@ BEGIN
     i.Anio
   FROM inserted i;
 END;
+GO
+
+
+USE DataMartAltosDelValle;
+GO
+
+;WITH N AS (
+  SELECT 0 AS n
+  UNION ALL SELECT 1
+  UNION ALL SELECT 2
+  UNION ALL SELECT 3
+  UNION ALL SELECT 4
+  UNION ALL SELECT 5
+  UNION ALL SELECT 6
+  UNION ALL SELECT 7
+  UNION ALL SELECT 8
+  UNION ALL SELECT 9
+),
+Tally AS (
+  SELECT ROW_NUMBER() OVER (ORDER BY (SELECT NULL)) - 1 AS d
+  FROM N a CROSS JOIN N b CROSS JOIN N c CROSS JOIN N d  -- ~27 años de días
+)
+INSERT INTO dbo.Dim_Tiempo (Fecha, Dia, Mes, NombreMes, NombreDia, Trimestre, Anio)
+SELECT
+  DATEADD(DAY, d, '2000-01-01'),
+  DAY(DATEADD(DAY, d, '2000-01-01')),
+  MONTH(DATEADD(DAY, d, '2000-01-01')),
+  FORMAT(DATEADD(DAY, d, '2000-01-01'), 'MMMM', 'es-ES'),
+  FORMAT(DATEADD(DAY, d, '2000-01-01'), 'dddd', 'es-ES'),
+  CASE 
+    WHEN MONTH(DATEADD(DAY, d, '2000-01-01')) BETWEEN 1 AND 3 THEN 1
+    WHEN MONTH(DATEADD(DAY, d, '2000-01-01')) BETWEEN 4 AND 6 THEN 2
+    WHEN MONTH(DATEADD(DAY, d, '2000-01-01')) BETWEEN 7 AND 9 THEN 3
+    ELSE 4 
+  END,
+  YEAR(DATEADD(DAY, d, '2000-01-01'))
+FROM Tally
+WHERE DATEADD(DAY, d, '2000-01-01') <= '2035-12-31'
+  AND NOT EXISTS (
+    SELECT 1 FROM dbo.Dim_Tiempo t WHERE t.Fecha = DATEADD(DAY, d, '2000-01-01')
+  );
 GO
 
 

@@ -227,21 +227,21 @@ BEGIN
             ep.IdEstadoPropiedadDW,
             tc.IdTipoContratoDW,
             ec.IdEstadoContratoDW,
-            ISNULL(tf.IdTiempo, 0) AS IdTiempoFirma,
-            ISNULL(tiempoI.IdTiempo, 0) AS IdTiempoInicio,
-            ISNULL(tiempoF.IdTiempo, 0) AS IdTiempoFin,
-            ISNULL(tp.IdTiempo, 0) AS IdTiempoPago,
+            COALESCE(tf.IdTiempo, 0) AS IdTiempoFirma,
+            COALESCE(tiempoI.IdTiempo, tf.IdTiempo, tp.IdTiempo, 0) AS IdTiempoInicio,
+            COALESCE(tiempoF.IdTiempo, tf.IdTiempo, tp.IdTiempo, 0) AS IdTiempoFin,
+            COALESCE(tp.IdTiempo, tf.IdTiempo, 0) AS IdTiempoPago,
             c.montoTotal,
             ISNULL(c.deposito, 0) AS DepositoPorAlquiler,
             CASE 
                 WHEN c.porcentajeComision < 0 THEN 0
-                WHEN c.porcentajeComision > 100 THEN 100
+                WHEN c.porcentajeComision > 20 THEN 20
                 ELSE CAST(c.porcentajeComision AS FLOAT)
             END AS PorcentajeComisionProm,
             ROUND(c.montoTotal * 
                     CASE 
                         WHEN c.porcentajeComision < 0 THEN 0
-                        WHEN c.porcentajeComision > 100 THEN 100
+                        WHEN c.porcentajeComision > 20 THEN 20
                         ELSE ISNULL(c.porcentajeComision, 0)
                     END / 100.0, 2) AS MontoComision,
             CASE WHEN UPPER(LTRIM(RTRIM(c.estado))) = 'FINALIZADO' THEN 1 ELSE 0 END AS ContratoFinalizado,
@@ -272,7 +272,7 @@ BEGIN
         LEFT JOIN dbo.Dim_Tiempo tiempoF ON tiempoF.Fecha = c.fechaFin
         LEFT JOIN dbo.Dim_Tiempo tp ON tp.Fecha = c.fechaPago;
 
-        PRINT'Porcentajes de comisión ajustados al rango 0–100%.';
+        PRINT'Porcentajes de comisión.';
 
         -- Actualiza existentes
         UPDATE T
@@ -320,9 +320,9 @@ BEGIN
         PRINT'Fact_Contrato actualizada e insertada sin duplicados.';
 
         ----------------------------------------------------------
-        -- 6. Cargar Fact_Propiedad (al final del proceso)
+        -- 6. Cargar Fact_Propiedad 
         ----------------------------------------------------------
-        PRINT'Cargando hechos (Fact_Propiedad)...';
+        PRINT 'Cargando hechos (Fact_Propiedad)...';
 
         DELETE FROM dbo.Fact_Propiedad;
 
@@ -331,10 +331,10 @@ BEGIN
             dp.IdPropiedadDW,
             ep.IdEstadoPropiedadDW
         FROM AltosDelValle.dbo.Propiedad p
-        JOIN dbo.Dim_Propiedad dp ON dp.id_original = p.idPropiedad
+        JOIN dbo.Dim_Propiedad       dp ON dp.id_original = p.idPropiedad
         JOIN dbo.Dim_EstadoPropiedad ep ON ep.id_original = p.idEstado;
 
-        PRINT'Fact_Propiedad cargada correctamente.';
+        PRINT 'Fact_Propiedad cargada correctamente.';
 
 
         ------------------------------------------------------------------
